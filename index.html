@@ -153,8 +153,8 @@
             padding: 8px;
             box-shadow: inset 0 0 5px rgba(0, 0, 0, 0.1);
             width: 100%;
-            max-width: 100vw; /* Asegura que no exceda el ancho de la pantalla */
-            overflow: hidden; /* Evita barras de desplazamiento no deseadas */
+            max-width: 100vw;
+            overflow: hidden;
         }
         
         .grid {
@@ -164,7 +164,7 @@
             gap: 2px;
             margin: 0 auto;
             width: 100%;
-            aspect-ratio: 1/1; /* Mantiene la cuadrícula cuadrada */
+            aspect-ratio: 1/1;
         }
         
         .cell {
@@ -173,7 +173,7 @@
             align-items: center;
             background-color: #f8f9fa;
             font-weight: bold;
-            font-size: clamp(12px, 3vw, 24px); /* Tamaño de fuente adaptable */
+            font-size: clamp(12px, 3vw, 24px);
             cursor: pointer;
             user-select: none;
             border-radius: 3px;
@@ -257,7 +257,7 @@
             }
             
             .grid {
-                max-width: 525px; /* Tamaño máximo para desktop */
+                max-width: 525px;
             }
             
             .cell {
@@ -335,6 +335,42 @@
             @page {
                 size: auto;
                 margin: 10mm;
+            }
+        }
+
+        /* Estilos para la vista de impresión en móviles */
+        @media screen and (max-width: 600px) {
+            #print-view .game-container {
+                background-color: white;
+                padding: 10px;
+                width: 100%;
+                max-width: 100%;
+                box-shadow: none;
+                border-radius: 0;
+            }
+            
+            #print-view .grid {
+                grid-template-columns: repeat(15, 6vw);
+                grid-template-rows: repeat(15, 6vw);
+                gap: 1px;
+            }
+            
+            #print-view .cell {
+                font-size: 3vw;
+                border: 1px solid #ddd;
+                background-color: white !important;
+                color: black !important;
+            }
+            
+            #print-view .word-item {
+                font-size: 4vw;
+                background-color: white !important;
+                color: black !important;
+                border: 1px solid #ddd;
+            }
+
+            #print-view .word-list {
+                background-color: white !important;
             }
         }
     </style>
@@ -418,130 +454,201 @@
             }, { passive: false });
             
             function printGame() {
-                // Crear un clon del juego para imprimir
-                const printContent = document.querySelector('.game-container').cloneNode(true);
+                // Verificar si es un dispositivo móvil
+                const isMobile = /Android|webOS|iPhone|iPad|iPod|BlackBerry|IEMobile|Opera Mini/i.test(navigator.userAgent);
                 
-                // Obtener la categoría seleccionada
-                const selectedTheme = themeSelect.value;
-                const themeTitle = themeSelect.options[themeSelect.selectedIndex].text;
-                
-                // Crear elemento para mostrar la categoría
-                const categoryElement = document.createElement('div');
-                categoryElement.className = 'category-title';
-                categoryElement.textContent = `Category: ${themeTitle}`;
-                
-                // Insertar la categoría después del título
-                const titleElement = printContent.querySelector('h1');
-                titleElement.parentNode.insertBefore(categoryElement, titleElement.nextSibling);
-                
-                // Eliminar elementos no necesarios
-                const elementsToRemove = printContent.querySelectorAll('.btn, .game-footer, .message, .theme-selector');
-                elementsToRemove.forEach(el => el.remove());
-                
-                // Resetear estilos de las celdas encontradas/seleccionadas
-                const cells = printContent.querySelectorAll('.cell');
-                cells.forEach(cell => {
-                    cell.classList.remove('selected', 'found');
-                    cell.style.backgroundColor = 'white';
-                    cell.style.color = 'black';
-                    cell.style.border = '1px solid #ddd';
-                });
-                
-                // Resetear estilos de las palabras encontradas
-                const wordItems = printContent.querySelectorAll('.word-item');
-                wordItems.forEach(item => {
-                    item.classList.remove('found');
-                    item.style.textDecoration = 'none';
-                    item.style.backgroundColor = 'white';
-                    item.style.color = 'black';
-                    item.style.border = '1px solid #ddd';
-                });
-                
-                // Crear una ventana de impresión
-                const printWindow = window.open('', '', 'width=800,height=600');
-                printWindow.document.open();
-                printWindow.document.write(`
-                    <!DOCTYPE html>
-                    <html>
-                    <head>
-                        <title>Word Search Puzzle - ${themeTitle}</title>
-                        <style>
-                            body {
-                                font-family: Arial, sans-serif;
-                                padding: 20px;
-                                margin: 0;
-                            }
-                            h1 {
-                                text-align: center;
-                                font-size: 24pt;
-                                margin-bottom: 5pt;
-                            }
-                            .category-title {
-                                text-align: center;
-                                font-size: 18pt;
-                                margin: 0 0 15pt 0;
-                                font-weight: bold;
-                                color: #2c3e50;
-                            }
-                            .grid-container{
-                                display:grid;
-                                place-content:center;
-                            }
-                            .grid {
-                                display: grid;
-                                grid-template-columns: repeat(15, 25px);
-                                grid-template-rows: repeat(15, 25px);
-                                gap: 1px;
-                                margin: 0 auto 20px auto;
-                            }
-                            .cell {
-                                display: flex;
-                                justify-content: center;
-                                align-items: center;
-                                border: 1px solid #ddd;
-                                width: 25px;
-                                height: 25px;
-                                font-size: 14px;
-                                background-color: white;
-                                color: black;
-                            }
-                            .word-list h3 {
-                                font-size: 18pt;
-                                margin: 15pt 0 5pt 0;
-                            }
-                            .words-container {
-                                display: flex;
-                                flex-wrap: wrap;
-                                gap: 8px;
-                                margin-bottom: 15px;
-                            }
-                            .word-item {
-                                background-color: white;
-                                color: black;
-                                border: 1px solid #ddd;
-                                padding: 5px 8px;
-                                font-size: 12pt;
-                            }
-                            @page {
-                                size: auto;
-                                margin: 10mm;
-                            }
-                        </style>
-                    </head>
-                    <body>
-                        ${printContent.innerHTML}
-                        <script>
-                            window.onload = function() {
-                                setTimeout(function() {
-                                    window.print();
-                                    window.close();
-                                }, 200);
-                            };
-                        <\/script>
-                    </body>
-                    </html>
-                `);
-                printWindow.document.close();
+                if (isMobile) {
+                    // Solución alternativa para móviles: mostrar el contenido imprimible en la misma ventana
+                    const printContent = document.querySelector('.game-container').cloneNode(true);
+                    const selectedTheme = themeSelect.value;
+                    const themeTitle = themeSelect.options[themeSelect.selectedIndex].text;
+                    
+                    // Crear elemento para mostrar la categoría
+                    const categoryElement = document.createElement('div');
+                    categoryElement.className = 'category-title';
+                    categoryElement.textContent = `Category: ${themeTitle}`;
+                    
+                    // Insertar la categoría después del título
+                    const titleElement = printContent.querySelector('h1');
+                    titleElement.parentNode.insertBefore(categoryElement, titleElement.nextSibling);
+                    
+                    // Eliminar elementos no necesarios
+                    const elementsToRemove = printContent.querySelectorAll('.btn, .game-footer, .message, .theme-selector');
+                    elementsToRemove.forEach(el => el.remove());
+                    
+                    // Resetear estilos
+                    const cells = printContent.querySelectorAll('.cell');
+                    cells.forEach(cell => {
+                        cell.classList.remove('selected', 'found');
+                        cell.style.backgroundColor = 'white';
+                        cell.style.color = 'black';
+                        cell.style.border = '1px solid #ddd';
+                    });
+                    
+                    const wordItems = printContent.querySelectorAll('.word-item');
+                    wordItems.forEach(item => {
+                        item.classList.remove('found');
+                        item.style.textDecoration = 'none';
+                        item.style.backgroundColor = 'white';
+                        item.style.color = 'black';
+                        item.style.border = '1px solid #ddd';
+                    });
+                    
+                    // Mostrar contenido imprimible en la pantalla
+                    const printView = document.createElement('div');
+                    printView.id = 'print-view';
+                    printView.style.position = 'fixed';
+                    printView.style.top = '0';
+                    printView.style.left = '0';
+                    printView.style.width = '100%';
+                    printView.style.height = '100%';
+                    printView.style.backgroundColor = 'white';
+                    printView.style.zIndex = '1000';
+                    printView.style.overflow = 'auto';
+                    printView.style.padding = '20px';
+                    printView.appendChild(printContent);
+                    
+                    // Botón para cerrar la vista de impresión
+                    const closeBtn = document.createElement('button');
+                    closeBtn.textContent = 'Close';
+                    closeBtn.style.position = 'fixed';
+                    closeBtn.style.top = '10px';
+                    closeBtn.style.right = '10px';
+                    closeBtn.style.padding = '10px';
+                    closeBtn.style.backgroundColor = '#3498db';
+                    closeBtn.style.color = 'white';
+                    closeBtn.style.border = 'none';
+                    closeBtn.style.borderRadius = '5px';
+                    closeBtn.style.cursor = 'pointer';
+                    closeBtn.style.zIndex = '1001';
+                    closeBtn.onclick = () => {
+                        document.body.removeChild(printView);
+                        document.body.removeChild(closeBtn);
+                    };
+                    
+                    document.body.appendChild(printView);
+                    document.body.appendChild(closeBtn);
+                    
+                    // Opción para compartir o guardar como imagen
+                    showMessage('Use your device options to share or save as image', 'success');
+                } else {
+                    // Método original para desktop
+                    const printContent = document.querySelector('.game-container').cloneNode(true);
+                    const selectedTheme = themeSelect.value;
+                    const themeTitle = themeSelect.options[themeSelect.selectedIndex].text;
+                    
+                    const categoryElement = document.createElement('div');
+                    categoryElement.className = 'category-title';
+                    categoryElement.textContent = `Category: ${themeTitle}`;
+                    
+                    const titleElement = printContent.querySelector('h1');
+                    titleElement.parentNode.insertBefore(categoryElement, titleElement.nextSibling);
+                    
+                    const elementsToRemove = printContent.querySelectorAll('.btn, .game-footer, .message, .theme-selector');
+                    elementsToRemove.forEach(el => el.remove());
+                    
+                    const cells = printContent.querySelectorAll('.cell');
+                    cells.forEach(cell => {
+                        cell.classList.remove('selected', 'found');
+                        cell.style.backgroundColor = 'white';
+                        cell.style.color = 'black';
+                        cell.style.border = '1px solid #ddd';
+                    });
+                    
+                    const wordItems = printContent.querySelectorAll('.word-item');
+                    wordItems.forEach(item => {
+                        item.classList.remove('found');
+                        item.style.textDecoration = 'none';
+                        item.style.backgroundColor = 'white';
+                        item.style.color = 'black';
+                        item.style.border = '1px solid #ddd';
+                    });
+                    
+                    const printWindow = window.open('', '', 'width=800,height=600');
+                    printWindow.document.open();
+                    printWindow.document.write(`
+                        <!DOCTYPE html>
+                        <html>
+                        <head>
+                            <title>Word Search Puzzle - ${themeTitle}</title>
+                            <style>
+                                body {
+                                    font-family: Arial, sans-serif;
+                                    padding: 20px;
+                                    margin: 0;
+                                }
+                                h1 {
+                                    text-align: center;
+                                    font-size: 24pt;
+                                    margin-bottom: 5pt;
+                                }
+                                .category-title {
+                                    text-align: center;
+                                    font-size: 18pt;
+                                    margin: 0 0 15pt 0;
+                                    font-weight: bold;
+                                    color: #2c3e50;
+                                }
+                                .grid-container{
+                                    display:grid;
+                                    place-content:center;
+                                }
+                                .grid {
+                                    display: grid;
+                                    grid-template-columns: repeat(15, 25px);
+                                    grid-template-rows: repeat(15, 25px);
+                                    gap: 1px;
+                                    margin: 0 auto 20px auto;
+                                }
+                                .cell {
+                                    display: flex;
+                                    justify-content: center;
+                                    align-items: center;
+                                    border: 1px solid #ddd;
+                                    width: 25px;
+                                    height: 25px;
+                                    font-size: 14px;
+                                    background-color: white;
+                                    color: black;
+                                }
+                                .word-list h3 {
+                                    font-size: 18pt;
+                                    margin: 15pt 0 5pt 0;
+                                }
+                                .words-container {
+                                    display: flex;
+                                    flex-wrap: wrap;
+                                    gap: 8px;
+                                    margin-bottom: 15px;
+                                }
+                                .word-item {
+                                    background-color: white;
+                                    color: black;
+                                    border: 1px solid #ddd;
+                                    padding: 5px 8px;
+                                    font-size: 12pt;
+                                }
+                                @page {
+                                    size: auto;
+                                    margin: 10mm;
+                                }
+                            </style>
+                        </head>
+                        <body>
+                            ${printContent.innerHTML}
+                            <script>
+                                window.onload = function() {
+                                    setTimeout(function() {
+                                        window.print();
+                                        window.close();
+                                    }, 200);
+                                };
+                            <\/script>
+                        </body>
+                        </html>
+                    `);
+                    printWindow.document.close();
+                }
             }
             
             async function startNewGame() {
